@@ -1,8 +1,7 @@
-import getDiagnosisFromAI  from "../services/aiService.js";
+import getDiagnosisFromAI, { getDiagnosisFromGemini }  from "../services/aiService.js";
 import {Diagnose} from "../model/diagnose.model.js";
 
 export const diagnose = async (req, res)=>{
-    
     try {
         const { symptoms } = req.body;
 
@@ -10,12 +9,14 @@ export const diagnose = async (req, res)=>{
         return res.status(400).json({ error: "Symptoms are required" });
     }
 
-    const aiDiagnosis  = await getDiagnosisFromAI(symptoms);
+    // const aiDiagnosis  = await getDiagnosisFromAI(symptoms);
+    const geminiDiagnosis = await getDiagnosisFromGemini(symptoms);
 
     const diagnose = new Diagnose({
         symptoms,
-        diagnosis: aiDiagnosis.conditions
+        diagnosis: geminiDiagnosis.conditions
     })
+
     await diagnose.save();
     
     res.status(200).json(diagnose);

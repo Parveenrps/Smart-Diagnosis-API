@@ -1,4 +1,6 @@
 import OpenAI from "openai";
+import { GoogleGenAI } from "@google/genai";
+
 
 
 
@@ -7,25 +9,25 @@ const getDiagnosisFromAI = async (symptoms) => {
 //     apiKey: process.env.OPENAI_API_KEY
 // })
 
-//     const prompt = `
-//         A patient has symptoms: ${symptoms}.
+  //   const prompt = `
+  //       A patient has symptoms: ${symptoms}.
         
-//     Suggest 2-3 possible conditions with:
-//     - name
-//     - probability (%)
-//     - next_steps
+  //   Suggest 2-3 possible conditions with:
+  //   - name
+  //   - probability (%)
+  //   - next_steps
 
-//     Return ONLY valid JSON:
-//     {
-//         "conditions": [
-//             {
-//                 "name": "",
-//                 "probability": "",
-//                 "next_steps": ""
-//             }
-//         ]
-//     }
-//   `
+  //   Return ONLY valid JSON:
+  //   {
+  //       "conditions": [
+  //           {
+  //               "name": "",
+  //               "probability": "",
+  //               "next_steps": ""
+  //           }
+  //       ]
+  //   }
+  // `
   
 // console.log("KEY:", process.env.OPENAI_API_KEY);
 //   const response = await openai.chat.completions.create({
@@ -51,6 +53,37 @@ return {
     ]
   };
 
+}
+
+export const getDiagnosisFromGemini = async (symptoms) =>{
+    const ai = new GoogleGenAI({apiKey: process.env.GEMINI_API_KEY});
+
+      const prompt = `A patient has symptoms: ${symptoms}.
+                        Suggest 2-3 possible conditions with:
+                        - name
+                        - probability (%)
+                        - next_steps
+
+                        Return ONLY valid JSON:
+                        {
+                            "conditions": [
+                                {
+                                    "name": "",
+                                    "probability": "",
+                                    "next_steps": ""
+                                }
+                            ]
+                        }`
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: prompt
+    })
+
+    // console.log("Gemini Response:", response.candidates[0].content.parts[0].text);
+    console.log("Gemini Response (raw):", response.text);
+
+    return JSON.parse(response.text);
 }
 
 export default getDiagnosisFromAI;
